@@ -1,5 +1,7 @@
 "use server";
 
+import { Task } from "@/entities/task/type";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createTaskAction(data: any, success: boolean) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -9,18 +11,36 @@ export async function createTaskAction(data: any, success: boolean) {
     : { success: false, error: { message: "error message..." } };
 }
 
-export async function fetchTasksAction(page: number, limit: number = 5) {
+const MOCK_DB: Task[] = Array.from({ length: 50 }).map((_, i) => ({
+  id: i + 1,
+  title: `Task ${i + 1}`,
+  description: `Description for task ${i + 1}`,
+  status: i % 3 === 0 ? "Done" : i % 3 === 1 ? "To Do" : "In Progress",
+}));
+
+export async function fetchTasksAction(
+  page: number,
+  limit: number = 5,
+  status: string = "All",
+) {
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const start = page * limit;
-  const tasks = Array.from({ length: limit }).map((_, i) => ({
-    id: start + i,
-    title: `Task ${start + i}`,
-    description: "Generated task",
-    status: "To Do",
-  }));
+  const filteredData = MOCK_DB.filter((task) =>
+    status === "All" ? true : task.status === status,
+  );
 
-  const hasMore = page < 10;
+  const start = (page - 1) * limit;
+  const end = start + limit;
+  const tasks = filteredData.slice(start, end);
 
-  return { tasks, hasMore };
+  const hasMore = end < filteredData.length;
+
+  console.log(
+    `Server: Returning ${tasks.length} tasks for status "${status}" (page ${page})`,
+  );
+
+  return {
+    tasks,
+    hasMore,
+  };
 }

@@ -27,7 +27,7 @@ const initialState: InitialState = {
   tasks: [],
   filter: "All",
   user: "",
-  page: 0,
+  page: 1,
   hasMore: true,
   isLoading: false,
 };
@@ -59,7 +59,7 @@ export const taskStore = <StateCreator<TaskStore>>((set) => ({
         task.id === id ? { ...task, status: getNextStatus(task.status) } : task,
       ),
     })),
-  setFilter: (filter) => set({ filter }),
+  setFilter: (filter) => set({ filter, tasks: [], page: 1, hasMore: true }),
   setUser: (user) => set({ user }),
   setLoading: (isLoading) => set({ isLoading }),
 }));
